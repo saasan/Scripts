@@ -1,11 +1,11 @@
 // ==UserScript==
 // @name        pixiv Tags
-// @description pixivで好きなタグを常時表示
-// @namespace   http://s2works.homeunix.net/
+// @description 設定したタグをpixiv内に常時表示する
+// @namespace   http://saasan.github.io/
 // @include     http://www.pixiv.net/*
 // @require     http://github.com/sizzlemctwizzle/GM_config/raw/master/gm_config.js
 // @author      s2works
-// @version     1.0
+// @version     1.01
 // ==/UserScript==
 
 (function(){
@@ -28,7 +28,7 @@ function setStyle() {
       border-radius: 5px 5px 5px 5px;\
       padding : 5px;\
       line-height : 1.7em;\
-      z-index : 1;\
+      z-index : 100;\
       overflow : hidden;\
       opacity : 0.8;\
     }\
