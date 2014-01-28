@@ -5,7 +5,7 @@
 // @include     http://www.pixiv.net/*
 // @require     http://github.com/sizzlemctwizzle/GM_config/raw/master/gm_config.js
 // @author      s2works
-// @version     1.01
+// @version     1.02
 // ==/UserScript==
 
 (function(){
@@ -28,7 +28,7 @@ function setStyle() {
       border-radius: 5px 5px 5px 5px;\
       padding : 5px;\
       line-height : 1.7em;\
-      z-index : 100;\
+      z-index : 99999;\
       overflow : hidden;\
       opacity : 0.8;\
     }\
