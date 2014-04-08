@@ -5,7 +5,7 @@
 // @include     http://www.pixiv.net/*
 // @require     http://github.com/sizzlemctwizzle/GM_config/raw/master/gm_config.js
 // @author      s2works
-// @version     1.02
+// @version     1.03
 // ==/UserScript==
 
 (function(){
@@ -28,7 +28,7 @@ function setStyle() {
       border-radius: 5px 5px 5px 5px;\
       padding : 5px;\
       line-height : 1.7em;\
-      z-index : 99999;\
+      z-index : 998;\
       overflow : hidden;\
       opacity : 0.8;\
     }\
@@ -105,18 +105,23 @@ function setStyle() {
 
 function optimizeTags() {
   var tags = GM_config.get('tags');
-  tags = tags.replace(/[ 　\t]+/g, ' ');
+
+  // 全角スペース、タブを半角スペースにする
+  tags = tags.replace(/[　\t]+/g, ' ');
+  // 改行コードを統一
+  tags = tags.replace(/\r\n/g, '\n');
+  tags = tags.replace(/\r/g, '\n');
+  // 連続する改行をまとめる
   tags = tags.replace(/\n+/g, '\n');
+  // 改行のみの行を削除
   tags = tags.replace(/^\n|\n$/g, '');
+
   GM_config.set('tags', tags);
   GM_config.write();
 }
 
 function generateHTML() {
-  optimizeTags();
-
-  var ul = document.createElement('ul');
-  ul.className = 'tags';
+  var html = '<h1 class="unit-title">' + SCRIPT_NAME + '</h1><ul class="tags">';
 
   var tags = GM_config.get('tags');
   tags = tags.split('\n');
@@ -124,37 +129,25 @@ function generateHTML() {
   for (var i = 0; i < tags.length; i++) {
     if (!tags[i].length) continue;
 
-    var encodedTag = encodeURI(tags[i].replace(/ /g, '+'));
+    // スペースがあれば部分一致検索
     var url = '/search.php?s_mode=s_tag' + (tags[i].indexOf(' ') < 0 ? '_full' : '') + '&word=';
 
-    var li = document.createElement('li');
-    li.className = 'tag';
+    // タグ前後のスペースを削除
+    tags[i] = tags[i].replace(/(^ +| +$)/g, '');
 
-    var portal = document.createElement('a');
-    portal.className = 'portal';
-    portal.href = url + encodedTag;
-    portal.appendChild(document.createTextNode('c'));
+    // URLににエンコードしたタグを追加
+    url += encodeURI(tags[i].replace(/ /g, '+'));
 
-    var a = document.createElement('a');
-    a.className = 'text';
-    a.href = url + encodedTag;
-    a.appendChild(document.createTextNode(tags[i]));
-
-    li.appendChild(portal);
-    li.appendChild(a);
-
-    ul.appendChild(li);
-    ul.appendChild(document.createTextNode(' '));
+    html += '<li class="tag"><a class="portal" href="' + url + '">c</a><a class="text" href="' + url + '">' + tags[i] + '</a></li>\n';
   }
 
-  var div = document.createElement('div');
-  div.innerHTML = '<h1 class="unit-title">' + SCRIPT_NAME + '</h1>';
-  div.appendChild(ul);
+  html += '</ul>';
 
-  return div.innerHTML;
+  return html;
 }
 
-function updateHTML(html) {
+function updateHTML() {
+  var html = generateHTML();
   var id = SCRIPT_NAME.replace(/ /g, '');
 
   var parentNode = document.getElementById('wrapper');
@@ -183,7 +176,7 @@ function addTag() {
   tags += '\n' + word;
   GM_config.set('tags', tags);
   GM_config.write();
-  updateHTML(generateHTML());
+  updateHTML();
 
   alert('「' + word + '」を追加しました。');
 }
@@ -197,20 +190,21 @@ GM_config.init(
       type : 'textarea',
       cols : 60,
       rows : 20,
-      default : 'Greasemonkeyの「ユーザスクリプトコマンド」でタグを設定できます。\nタグは1行に1つ書いて下さい。\nAND/OR検索もできます。\n\n↓例↓\nオリジナル\nなにこれかわいい\n俺の 黒猫\nパチュリー OR パチェ'
+      default : 'Greasemonkeyの「ユーザスクリプトコマンド」でタグを設定できます。\nタグは1行に1つ書いて下さい。\n部分一致で検索したい場合は、タグの後ろにスペースを入れて下さい。\nAND/OR検索もできます。\n\n↓例↓\nオリジナル\nなにこれかわいい\n俺の 黒猫\nパチュリー OR パチェ'
     }
   },
   '#GM_config_field_tags{ width : 100%; }',
   {
     save : function() {
       GM_config.close();
-      updateHTML(generateHTML());
+      optimizeTags();
+      updateHTML();
     }
   }
 );
 
 setStyle();
-updateHTML(generateHTML());
+updateHTML();
 GM_registerMenuCommand(SCRIPT_NAME + ' - 設定', function(){ GM_config.open(); });
 GM_registerMenuCommand(SCRIPT_NAME + ' - 現在表示中のタグを追加', function(){  addTag(); });
 
