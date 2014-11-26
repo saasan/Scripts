@@ -3,102 +3,106 @@
 // @description 設定したタグをpixiv内に常時表示する
 // @namespace   http://saasan.github.io/
 // @include     http://www.pixiv.net/*
-// @require     http://github.com/sizzlemctwizzle/GM_config/raw/master/gm_config.js
+// @require     https://raw.githubusercontent.com/sizzlemctwizzle/GM_config/master/gm_config.js
 // @author      s2works
-// @version     1.03
+// @grant       GM_addStyle
+// @grant       GM_registerMenuCommand
+// @grant       GM_getValue
+// @grant       GM_setValue
+// @version     1.04
 // ==/UserScript==
 
-(function(){
+/* jshint multistr: true */
 
-const SCRIPT_NAME = 'pixiv Tags';
+(function() {
+'use strict';
+
+var SCRIPT_NAME = 'pixiv Tags';
 
 function setStyle() {
-  var style;
+  var style =
+    '#pixivTags' +
+    '{' +
+    '  position : fixed;' +
+    '  left : 10px;' +
+    '  top : 10px;' +
+    '  width : 8em;' +
+    '  height : 2em;' +
+    '  background-color : #FFF;' +
+    '  border: 1px solid #D6DEE5;' +
+    '  border-radius: 5px 5px 5px 5px;' +
+    '  padding : 5px;' +
+    '  line-height : 1.7em;' +
+    '  z-index : 998;' +
+    '  overflow : hidden;' +
+    '  opacity : 0.8;' +
+    '}' +
 
-  style = '\
-    #pixivTags\
-    {\
-      position : fixed;\
-      left : 10px;\
-      top : 10px;\
-      width : 8em;\
-      height : 2em;\
-      background-color : #FFF;\
-      border: 1px solid #D6DEE5;\
-      border-radius: 5px 5px 5px 5px;\
-      padding : 5px;\
-      line-height : 1.7em;\
-      z-index : 998;\
-      overflow : hidden;\
-      opacity : 0.8;\
-    }\
-\
-    #pixivTags li\
-    {\
-      display : none;\
-    }\
-\
-    #pixivTags:hover\
-    {\
-      width : 300px;\
-      height : 100%;\
-      opacity : 1;\
-    }\
-\
-    #pixivTags:hover li\
-    {\
-      display : inline-block;\
-    }\
-\
-    @media screen and (min-width : 1450px) {\
-      #pixivTags, #pixivTags:hover\
-      {\
-        width : 200px;\
-        height : 100%;\
-        opacity : 1;\
-      }\
-\
-      #pixivTags li\
-      {\
-        display : inline-block;\
-      }\
-    }\
-\
-    @media screen and (min-width : 1550px) {\
-      #pixivTags, #pixivTags:hover\
-      {\
-        width : 250px;\
-      }\
-    }\
-\
-    @media screen and (min-width : 1650px) {\
-      #pixivTags, #pixivTags:hover\
-      {\
-        width : 300px;\
-      }\
-    }\
-\
-    @media screen and (min-width : 1750px) {\
-      #pixivTags, #pixivTags:hover\
-      {\
-        width : 350px;\
-      }\
-    }\
-\
-    @media screen and (min-width : 1850px) {\
-      #pixivTags, #pixivTags:hover\
-      {\
-        width : 400px;\
-      }\
-    }\
-\
-    @media screen and (min-width : 1920px) {\
-      #pixivTags, #pixivTags:hover\
-      {\
-        width : 435px;\
-      }\
-    }\
-  ';
+    '#pixivTags li' +
+    '{' +
+    '  display : none;' +
+    '}' +
+
+    '#pixivTags:hover' +
+    '{' +
+    '  width : 300px;' +
+    '  height : 100%;' +
+    '  opacity : 1;' +
+    '}' +
+
+    '#pixivTags:hover li' +
+    '{' +
+    '  display : inline-block;' +
+    '}' +
+
+    '@media screen and (min-width : 1450px) {' +
+    '  #pixivTags, #pixivTags:hover' +
+    '  {' +
+    '    width : 200px;' +
+    '    height : 100%;' +
+    '    opacity : 1;' +
+    '  }' +
+
+    '  #pixivTags li' +
+    '  {' +
+    '    display : inline-block;' +
+    '  }' +
+    '}' +
+
+    '@media screen and (min-width : 1550px) {' +
+    '  #pixivTags, #pixivTags:hover' +
+    '  {' +
+    '    width : 250px;' +
+    '  }' +
+    '}' +
+
+    '@media screen and (min-width : 1650px) {' +
+    '  #pixivTags, #pixivTags:hover' +
+    '  {' +
+    '    width : 300px;' +
+    '  }' +
+    '}' +
+
+    '@media screen and (min-width : 1750px) {' +
+    '  #pixivTags, #pixivTags:hover' +
+    '  {' +
+    '    width : 350px;' +
+    '  }' +
+    '}' +
+
+    '@media screen and (min-width : 1850px) {' +
+    '  #pixivTags, #pixivTags:hover' +
+    '  {' +
+    '    width : 400px;' +
+    '  }' +
+    '}' +
+
+    '@media screen and (min-width : 1920px) {' +
+    '  #pixivTags, #pixivTags:hover' +
+    '  {' +
+    '    width : 435px;' +
+    '  }' +
+    '}';
 
   GM_addStyle(style);
 }
@@ -127,7 +131,9 @@ function generateHTML() {
   tags = tags.split('\n');
 
   for (var i = 0; i < tags.length; i++) {
-    if (!tags[i].length) continue;
+    if (!tags[i].length) {
+      continue;
+    }
 
     // スペースがあれば部分一致検索
     var url = '/search.php?s_mode=s_tag' + (tags[i].indexOf(' ') < 0 ? '_full' : '') + '&word=';
@@ -151,7 +157,9 @@ function updateHTML() {
   var id = SCRIPT_NAME.replace(/ /g, '');
 
   var parentNode = document.getElementById('wrapper');
-  if (parentNode == null) return; // null or undefined
+  if (parentNode == null) {
+    return;
+  }
 
   var div = document.getElementById(id);
   if (div == null) { // null or undefined
@@ -166,7 +174,7 @@ function updateHTML() {
 function addTag() {
   var url = location.href;
   if (!/^http:\/\/www\.pixiv\.net\/(search|tags)\.php\?/.test(url)) {
-    alert('検索結果を表示した状態で実行して下さい。');
+    window.alert('検索結果を表示した状態で実行して下さい。');
     return;
   }
 
@@ -178,7 +186,7 @@ function addTag() {
   GM_config.write();
   updateHTML();
 
-  alert('「' + word + '」を追加しました。');
+  window.alert('「' + word + '」を追加しました。');
 }
 
 GM_config.init(
