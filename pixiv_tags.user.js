@@ -22,7 +22,7 @@ var TAGLIST_ID = SCRIPT_NAME.replace(/ /g, '');
 
 function setStyle() {
   var style =
-    '#'+TAGLIST_ID + '{' +
+    '#' + TAGLIST_ID + '{' +
     '  background-color : #FFF;' +
     '  border: 1px solid #D6DEE5;' +
     '  border-radius: 5px;' +
@@ -31,7 +31,7 @@ function setStyle() {
     '  overflow : hidden;' +
     '  box-sizing: border-box;' +
     '}' +
-    
+
     // マウスオンで表示するタイプ
     '.show-float {' +
     '  position : fixed;' +
@@ -98,13 +98,13 @@ function setStyle() {
     '  width : 100%;' +
     '  height : auto;' +
     '}' +
-    
+
     // ボタンと親要素の調整
-    '#'+TAGLIST_ID+' button {' +
+    '#' + TAGLIST_ID + ' button {' +
     '  float : right;' +
     '  margin-top : 0.3em;' +
-    '}' + 
-    '#'+TAGLIST_ID+' h1 {' +
+    '}' +
+    '#' + TAGLIST_ID + ' h1 {' +
     '  line-height: 2.7em;' +
     '}';
 
@@ -144,11 +144,11 @@ function generateHTML() {
 
     // タグ前後のスペースを削除
     tags[i] = tags[i].replace(/(^ +| +$)/g, '');
-    
+
     // 短縮表示
     var pattern = /(-{2,})+(\d{1,})$/;
     var name = tags[i];
-    if(name.match(pattern)){
+    if (name.match(pattern)) {
       name = RegExp.$2 < (name.length - RegExp.lastMatch.length + 1) ? name.slice(0,   RegExp.$2) + '...' : name.slice(0, - RegExp.lastMatch.length - 1);
     }
 
@@ -163,17 +163,18 @@ function generateHTML() {
 
 function updateHTML() {
   var parentNode = document.getElementById('wrapper');
-  
+
   // 挿入先が見当たらなければ何もしない
   if(parentNode == null){
     return;
   }
-  
+
   // タグリストが生成済みなら中身だけ書き換え、なければ作成
   var taglist = document.getElementById('tags');
-  if(taglist != null){
+  if (taglist != null) {
     taglist.innerHTML = generateHTML();
-  }else{
+  }
+  else {
     var parent = document.createElement('div');
     parent.id = TAGLIST_ID;
     parent.innerHTML = '<h1 class="unit-title">' + SCRIPT_NAME + '</h1>';
@@ -196,12 +197,13 @@ function updateHTML() {
     parent.appendChild(ul);
     parentNode.insertBefore(parent, parentNode.firstChild);
   }
-  
+
   // 表示設定を切り替え
   var taglist_container = document.getElementById(TAGLIST_ID);
-  if(GM_config.get('showAlways')){
+  if (GM_config.get('showAlways')) {
     taglist_container.className = 'show-always';
-  }else{
+  }
+  else {
     taglist_container.className = 'show-float';
   }
 }
