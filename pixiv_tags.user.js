@@ -4,7 +4,7 @@
 // @namespace   http://saasan.github.io/
 // @include     http://www.pixiv.net/*
 // @require     https://raw.githubusercontent.com/sizzlemctwizzle/GM_config/master/gm_config.js
-// @author      s2works
+// @author      saasan, monsier-oui
 // @grant       GM_addStyle
 // @grant       GM_registerMenuCommand
 // @grant       GM_getValue
