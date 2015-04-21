@@ -3,6 +3,8 @@
   "globals": {
     "GM_addStyle": false,
     "GM_registerMenuCommand": false,
+    "GM_getValue": false,
+    "GM_setValue": false,
     "GM_config": false
   },
 
