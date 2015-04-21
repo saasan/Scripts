@@ -21,92 +21,93 @@ var SCRIPT_NAME = 'pixiv Tags';
 var TAGLIST_ID = SCRIPT_NAME.replace(/ /g, '');
 
 function setStyle() {
-  var style =
-    '#' + TAGLIST_ID + '{' +
-    '  background-color : #FFF;' +
-    '  border: 1px solid #D6DEE5;' +
-    '  border-radius: 5px;' +
-    '  padding : 3px;' +
-    '  line-height : 1.7em;' +
-    '  overflow : hidden;' +
-    '  box-sizing: border-box;' +
-    '}' +
+  var style = `
+    #${TAGLIST_ID} {
+      background-color : #FFF;
+      border: 1px solid #D6DEE5;
+      border-radius: 5px;
+      padding : 3px;
+      line-height : 1.7em;
+      overflow : hidden;
+      box-sizing: border-box;
+    }
 
-    // マウスオンで表示するタイプ
-    '.show-float {' +
-    '  position : fixed;' +
-    '  left : 10px;' +
-    '  top : 10px;' +
-    '  width : 8em;' +
-    '  height : 3em;' +
-    '  opacity : 0.8;' +
-    '  z-index : 998;' +
-    '}' +
+    /* マウスオンで表示するタイプ */
+    .show-float {
+      position : fixed;
+      left : 10px;
+      top : 10px;
+      width : 8em;
+      height : 3em;
+      opacity : 0.8;
+      z-index : 998;
+    }
 
-    '.show-float:hover {' +
-    '  min-width : 300px;' +
-    '  height : auto;' +
-    '  opacity : 0.9;' +
-    '}' +
+    .show-float:hover {
+      min-width : 300px;
+      height : auto;
+      opacity : 0.9;
+    }
 
-    '@media screen and (min-width : 1450px) {' +
-    '  .show-float, .show-float:hover {' +
-    '    width : 200px;' +
-    '    height : 100%;' +
-    '    opacity : 1;' +
-    '  }' +
+    @media screen and (min-width : 1450px) {
+      .show-float, .show-float:hover {
+        width : 200px;
+        height : 100%;
+        opacity : 1;
+      }
 
-    '  .show-float li {' +
-    '    display : inline-block;' +
-    '  }' +
-    '}' +
+      .show-float li {
+        display : inline-block;
+      }
+    }
 
-    '@media screen and (min-width : 1550px) {' +
-    '  .show-float, .show-float:hover {' +
-    '    width : 250px;' +
-    '  }' +
-    '}' +
+    @media screen and (min-width : 1550px) {
+      .show-float, .show-float:hover {
+        width : 250px;
+      }
+    }
 
-    '@media screen and (min-width : 1650px) {' +
-    '  .show-float, .show-float:hover {' +
-    '    width : 300px;' +
-    '  }' +
-    '}' +
+    @media screen and (min-width : 1650px) {
+      .show-float, .show-float:hover {
+        width : 300px;
+      }
+    }
 
-    '@media screen and (min-width : 1750px) {' +
-    '  .show-float, .show-float:hover {' +
-    '    width : 350px;' +
-    '  }' +
-    '}' +
+    @media screen and (min-width : 1750px) {
+      .show-float, .show-float:hover {
+        width : 350px;
+      }
+    }
 
-    '@media screen and (min-width : 1850px) {' +
-    '  .show-float, .show-float:hover {' +
-    '    width : 400px;' +
-    '  }' +
-    '}' +
+    @media screen and (min-width : 1850px) {
+      .show-float, .show-float:hover {
+        width : 400px;
+      }
+    }
 
-    '@media screen and (min-width : 1920px) {' +
-    '  .show-float, .show-float:hover {' +
-    '    width : 435px;' +
-    '  }' +
-    '}' +
+    @media screen and (min-width : 1920px) {
+      .show-float, .show-float:hover {
+        width : 435px;
+      }
+    }
 
-    // 常に展開して表示するタイプ
-    '.show-always {' +
-    '  position : relative;' +
-    '  margin-bottom : 5px;' +
-    '  width : 100%;' +
-    '  height : auto;' +
-    '}' +
+    /* 常に展開して表示するタイプ */
+    .show-always {
+      position : relative;
+      margin-bottom : 5px;
+      width : 100%;
+      height : auto;
+    }
 
-    // ボタンと親要素の調整
-    '#' + TAGLIST_ID + ' button {' +
-    '  float : right;' +
-    '  margin-top : 0.3em;' +
-    '}' +
-    '#' + TAGLIST_ID + ' h1 {' +
-    '  line-height: 2.7em;' +
-    '}';
+    /* ボタンと親要素の調整 */
+    #${TAGLIST_ID} button {
+      float : right;
+      margin-top : 0.3em;
+    }
+    #${TAGLIST_ID} h1 {
+      line-height: 2.7em;
+    }
+  `;
 
   GM_addStyle(style);
 }
