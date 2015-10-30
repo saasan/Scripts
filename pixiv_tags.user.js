@@ -16,9 +16,9 @@
   'use strict';
 
   var SCRIPT_NAME = 'pixiv Tags';
-  var TAGLIST_ID = SCRIPT_NAME.replace(/ /g, '');
+  var SCRIPT_ID = SCRIPT_NAME.replace(/ /g, '');
   var CSS  = `
-    #${TAGLIST_ID} {
+    #${ SCRIPT_ID } {
       background-color : #FFF;
       border: 1px solid #D6DEE5;
       border-radius: 5px;
@@ -28,79 +28,44 @@
       box-sizing: border-box;
     }
 
-    /* マウスオンで表示するタイプ */
-    .show-float {
+    #${ SCRIPT_ID }Tags {
+      margin: 2px;
+      padding: 5px;
+    }
+
+    /* ページ左側に固定表示するタイプ */
+    .positionFixed, .positionFixedExpand {
       position : fixed;
       left : 10px;
       top : 10px;
-      width : 8em;
-      height : 3em;
-      opacity : 0.8;
       z-index : 998;
     }
 
-    .show-float:hover {
+    .positionFixed {
+      height : 3em;
+      opacity : 0.8;
+    }
+
+    .positionFixed:hover {
       min-width : 300px;
       height : auto;
-      opacity : 0.9;
+      opacity : 1;
     }
 
-    @media screen and (min-width : 1450px) {
-      .show-float, .show-float:hover {
-        width : 200px;
-        height : 100%;
-        opacity : 1;
-      }
-
-      .show-float li {
-        display : inline-block;
-      }
-    }
-
-    @media screen and (min-width : 1550px) {
-      .show-float, .show-float:hover {
-        width : 250px;
-      }
-    }
-
-    @media screen and (min-width : 1650px) {
-      .show-float, .show-float:hover {
-        width : 300px;
-      }
-    }
-
-    @media screen and (min-width : 1750px) {
-      .show-float, .show-float:hover {
-        width : 350px;
-      }
-    }
-
-    @media screen and (min-width : 1850px) {
-      .show-float, .show-float:hover {
-        width : 400px;
-      }
-    }
-
-    @media screen and (min-width : 1920px) {
-      .show-float, .show-float:hover {
-        width : 435px;
-      }
-    }
-
-    /* 常に展開して表示するタイプ */
-    .show-always {
-      position : relative;
+    /* ページ上部に表示するタイプ */
+    .positionStatic {
+      position : static;
       margin-bottom : 5px;
       width : 100%;
       height : auto;
     }
 
     /* ボタンと親要素の調整 */
-    #${TAGLIST_ID} button {
+    #${ SCRIPT_ID } button {
       float : right;
       margin-top : 0.3em;
     }
-    #${TAGLIST_ID} h1 {
+    #${ SCRIPT_ID } h1 {
       line-height: 2.7em;
     }
   `;
@@ -163,35 +128,75 @@
     return { forSearch: forSearch, short: short };
   }
 
-  function generateHTML() {
-    var html = '';
+  /**
+   * タグリスト部分のHTMLを作成する
+   */
+  function generateTagListHTML() {
+    var html = '', url, tag;
 
     var tags = GM_config.get('tags');
     tags = tags.split('\n');
 
     for (var i = 0; i < tags.length; i++) {
-      if (!tags[i].length) {
+      if (tags[i].length === 0) {
         continue;
       }
 
       // スペースがあれば部分一致検索
-      var url = '/search.php?s_mode=s_tag' + (tags[i].indexOf(' ') < 0 ? '_full' : '') + '&word=';
+      url = '/search.php?s_mode=s_tag' + (tags[i].indexOf(' ') < 0 ? '_full' : '') + '&word=';
 
       // タグ前後のスペースを削除
       tags[i] = tags[i].replace(/(^ +| +$)/g, '');
 
       // タグを短縮
-      var tag = shortenTag(tags[i]);
+      tag = shortenTag(tags[i]);
 
       // URLに短縮数字除去+エンコードしたタグを追加
       url += encodeURI(tag.forSearch.replace(/ /g, '+'));
 
-      html += '<li class="tag"><a class="text" href="' + escapeHTML(url) + '" title="' + escapeHTML(tag.forSearch) + '"><span class="portal">c</span>' + escapeHTML(tag.short) + '</a></li>\n';
+      html += `
+        <li class="tag">
+          <a class="text" href="${ escapeHTML(url) }" title="${ escapeHTML(tag.forSearch) }">
+            <span class="portal">c</span>${ escapeHTML(tag.short) }
+          </a>
+        </li>
+      `;
     }
 
     return html;
   }
 
+  /**
+   * アプリで使用する要素を挿入する
+   * @param parentNode 挿入する親要素
+   */
+  function insertAppElement(parentNode) {
+    var element = document.createElement('div');
+    element.id = SCRIPT_ID;
+
+    element.innerHTML = `
+      <h1 class="unit-title">
+        ${ SCRIPT_NAME }
+        <button id="${ SCRIPT_ID }OpenSettings" class="_button">設定</button>
+        <button id="${ SCRIPT_ID }AddTag" class="_button">検索条件を追加</button>
+      </h1>
+      <ul id="${ SCRIPT_ID }Tags" class="tags">${ generateTagListHTML() }</ul>
+    `;
+
+    parentNode.insertBefore(element, parentNode.firstChild);
+
+    // 「検索条件を追加」ボタンが押されたらaddTag()を呼び出すように設定
+    var addTagElement = document.getElementById(SCRIPT_ID + 'AddTag');
+    addTagElement.addEventListener('click', function(){ addTag(); }, false);
+
+    // 「設定」ボタンが押されたら設定画面を開くように設定
+    var settingsElement = document.getElementById(SCRIPT_ID + 'OpenSettings');
+    settingsElement.addEventListener('click', function(){ GM_config.open(); }, false);
+  }
+
+  /**
+   * HTMLを更新する
+   */
   function updateHTML() {
     var parentNode = document.getElementById('wrapper');
 
@@ -201,47 +206,36 @@
     }
 
     // タグリストが生成済みなら中身だけ書き換え、なければ作成
-    var taglist = document.getElementById('tags');
-    if (taglist != null) {
-      taglist.innerHTML = generateHTML();
+    var tagsElement = document.getElementById(SCRIPT_ID + 'Tags');
+    if (tagsElement == null) {
+      insertAppElement(parentNode);
     }
     else {
-      var parent = document.createElement('div');
-      parent.id = TAGLIST_ID;
-      parent.innerHTML = '<h1 class="unit-title">' + SCRIPT_NAME + '</h1>';
-      var btn1 = document.createElement('button');
-      btn1.id = 'button-settings';
-      btn1.className = '_button';
-      btn1.textContent = '設定';
-      btn1.addEventListener('click', function(){GM_config.open();}, false);
-      parent.firstChild.appendChild(btn1);
-      var btn2 = document.createElement('button');
-      btn2.id = 'button-addtag';
-      btn2.className = '_button';
-      btn2.textContent = '検索条件を追加';
-      btn2.addEventListener('click', function(){addTag();}, false);
-      parent.firstChild.appendChild(btn2);
-      var ul = document.createElement('ul');
-      ul.id = 'tags';
-      ul.className = 'tags';
-      ul.innerHTML = generateHTML();
-      parent.appendChild(ul);
-      parentNode.insertBefore(parent, parentNode.firstChild);
+      tagsElement.innerHTML = generateTagListHTML();
     }
 
-    // 表示設定を切り替え
-    var taglist_container = document.getElementById(TAGLIST_ID);
-    if (GM_config.get('showAlways')) {
-      taglist_container.className = 'show-always';
-    }
-    else {
-      taglist_container.className = 'show-float';
-    }
+    // 要素の幅を設定
+    setWidth();
+
+    // 「検索条件を追加」ボタンの有効/無効を切り替え
+    var addTagElement = document.getElementById(SCRIPT_ID + 'AddTag');
+    addTagElement.disabled = !isSearchResult();
   }
 
+  /**
+   * 検索結果のページか調べる
+   * @returns {boolean} 検索結果のページならtrue、そうでなければfalse
+   */
+  function isSearchResult() {
+    return /^https?:\/\/www\.pixiv\.net\/(search|tags)\.php\?/.test(location.href);
+  }
+
+  /**
+   * 表示中の検索結果をタグとして追加する
+   */
   function addTag() {
     var url = location.href;
-    if (!/^http:\/\/www\.pixiv\.net\/(search|tags)\.php\?/.test(url)) {
+    if (!isSearchResult()) {
       window.alert('検索結果を表示した状態で実行して下さい。');
       return;
     }
@@ -257,6 +251,30 @@
     window.alert('「' + word + '」を追加しました。');
   }
 
+  /**
+   * アプリで使用する要素の幅を設定する
+   */
+  function setWidth() {
+    var appElement = document.getElementById(SCRIPT_ID);
+    if (GM_config.get('positionFixed')) {
+      if (document.body.clientWidth >= 1450) {
+        // 新しい幅(clientWidthからpixivの幅970px + margin:10px * 4を引いて2で割る)
+        var newWidth = Math.round((document.body.clientWidth - 970 - (10 * 4)) / 2);
+
+        appElement.style.width = newWidth + 'px';
+        appElement.className = 'positionFixedExpand';
+      }
+      else {
+        appElement.style.width = '8em';
+        appElement.className = 'positionFixed';
+      }
+    }
+    else {
+      appElement.style.width = 'auto';
+      appElement.className = 'positionStatic';
+    }
+  }
+
   GM_config.init(
     SCRIPT_NAME,
     {
@@ -267,11 +285,12 @@
         cols : 60,
         rows : 20,
         default : 'Greasemonkeyの「ユーザスクリプトコマンド」でタグを設定できます。\nタグは1行に1つ書いて下さい。\n部分一致で検索したい場合は、タグの後ろにスペースを入れて下さい。\nAND/OR検索もできます。\n\n↓例↓\nオリジナル\nなにこれかわいい\n俺の 黒猫\nパチュリー OR パチェ'
-      },showAlways :
+      },
+      positionFixed :
       {
-        label : 'タグリストを常に展開して表示する',
+        label : 'ページの左側に固定表示する',
         type : 'checkbox',
-        default : false
+        default : true
       }
     },
     '#GM_config_field_tags{ width : 100%; }',
@@ -283,9 +302,27 @@
       }
     }
   );
-  GM_addStyle(CSS)();
+  GM_addStyle(CSS);
   updateHTML();
   GM_registerMenuCommand(SCRIPT_NAME + ' - 設定', function(){ GM_config.open(); });
   GM_registerMenuCommand(SCRIPT_NAME + ' - 現在表示中のタグを追加', function(){ addTag(); });
+
+  // リサイズ時の処理
+  (function(){
+    var queue = null;
+    var appElement = document.getElementById(SCRIPT_ID);
+
+    window.addEventListener('resize', function() {
+      // 連続して発生するリサイズイベントをキャンセル
+      if (queue != null) {
+        clearTimeout(queue);
+      }
+
+      // 100ミリ秒待ってから要素のサイズを設定
+      queue = setTimeout(function() {
+        setWidth();
+      }, 100);
+    }, false);
+  })();
 
 })();
