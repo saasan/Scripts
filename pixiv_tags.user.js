@@ -208,7 +208,7 @@
     }
 
     // タグリストが生成済みなら中身だけ書き換え、なければ作成
-    var taglist = document.getElementById('tags');
+    var taglist = document.getElementById(SCRIPT_ID + 'Tags');
     if (taglist != null) {
       taglist.innerHTML = tagListHTML;
     }
@@ -222,7 +222,7 @@
             <button id="${ SCRIPT_ID }AddTag" class="_button">検索条件を追加</button>
             <button id="${ SCRIPT_ID }OpenSettings" class="_button">設定</button>
           </h1>
-          <ul id="tags" class="tags">${ tagListHTML }</ul>
+          <ul id="${ SCRIPT_ID }Tags" class="tags">${ tagListHTML }</ul>
         </div>
       `;
       
