@@ -221,12 +221,12 @@
     parentNode.insertBefore(element, parentNode.firstChild);
 
     // 「検索条件を追加」ボタンが押されたらaddTag()を呼び出すように設定
-    var buttonAddTag = document.getElementById(SCRIPT_ID + 'AddTag');
-    buttonAddTag.addEventListener('click', function(){ addTag(); }, false);
+    var addTagElement = document.getElementById(SCRIPT_ID + 'AddTag');
+    addTagElement.addEventListener('click', function(){ addTag(); }, false);
 
     // 「設定」ボタンが押されたら設定画面を開くように設定
-    var buttonSettings = document.getElementById(SCRIPT_ID + 'OpenSettings');
-    buttonSettings.addEventListener('click', function(){ GM_config.open(); }, false);
+    var settingsElement = document.getElementById(SCRIPT_ID + 'OpenSettings');
+    settingsElement.addEventListener('click', function(){ GM_config.open(); }, false);
   }
 
   function updateHTML() {
