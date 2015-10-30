@@ -12,16 +12,12 @@
 // @version     1.05
 // ==/UserScript==
 
-/* jshint multistr: true */
-
 (function() {
-'use strict';
+  'use strict';
 
-var SCRIPT_NAME = 'pixiv Tags';
-var TAGLIST_ID = SCRIPT_NAME.replace(/ /g, '');
-
-function setStyle() {
-  var style = `
+  var SCRIPT_NAME = 'pixiv Tags';
+  var TAGLIST_ID = SCRIPT_NAME.replace(/ /g, '');
+  var CSS  = `
     #${TAGLIST_ID} {
       background-color : #FFF;
       border: 1px solid #D6DEE5;
@@ -109,153 +105,187 @@ function setStyle() {
     }
   `;
 
-  GM_addStyle(style);
-}
+  /**
+   * HTMLで使用できない文字を文字実体参照化する
+   * @param s 文字実体参照化したい文字列
+   * @returns {string} 文字実体参照化した文字列
+   */
+  function escapeHTML(s) {
+    return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+  }
 
-function optimizeTags() {
-  var tags = GM_config.get('tags');
+  /**
+   * 設定されたタグリストを最適化
+   */
+  function optimizeTags() {
+    var tags = GM_config.get('tags');
 
-  // 全角スペース、タブを半角スペースにする
-  tags = tags.replace(/[　\t]+/g, ' ');
-  // 改行コードを統一
-  tags = tags.replace(/\r\n/g, '\n');
-  tags = tags.replace(/\r/g, '\n');
-  // 連続する改行をまとめる
-  tags = tags.replace(/\n+/g, '\n');
-  // 改行のみの行を削除
-  tags = tags.replace(/^\n|\n$/g, '');
+    // 全角スペース、タブを半角スペースにする
+    tags = tags.replace(/[　\t]+/g, ' ');
+    // 改行コードを統一
+    tags = tags.replace(/\r\n/g, '\n');
+    tags = tags.replace(/\r/g, '\n');
+    // 連続する改行をまとめる
+    tags = tags.replace(/\n+/g, '\n');
+    // 改行のみの行を削除
+    tags = tags.replace(/^\n|\n$/g, '');
 
-  GM_config.set('tags', tags);
-  GM_config.write();
-}
+    GM_config.set('tags', tags);
+    GM_config.write();
+  }
 
-function generateHTML() {
-  var html = '';
+  /**
+   * タグを表示用に短縮する
+   * @param tag タグの文字列
+   * @returns {object} forSearch 文字数指定部分を削除した検索用タグ
+   *                   short 表示用に短縮したタグ
+   */
+  function shortenTag(tag) {
+    var forSearch, short;
+    var pattern = /\s+--(\d+)\s*$/;
+    var result = pattern.exec(tag);
 
-  var tags = GM_config.get('tags');
-  tags = tags.split('\n');
+    if (result == null) {
+      forSearch = short = tag;
+    }
+    else {
+      // 指定された文字数
+      var limit = parseInt(result[1], 10);
+      // 文字数指定部分を削除
+      forSearch = short = tag.replace(pattern, '');
 
-  for (var i = 0; i < tags.length; i++) {
-    if (!tags[i].length) {
-      continue;
+      // 指定文字数を超えていたら短縮
+      if (short.length > limit) {
+        short = short.substr(0, limit) + '...';
+      }
     }
 
-    // スペースがあれば部分一致検索
-    var url = '/search.php?s_mode=s_tag' + (tags[i].indexOf(' ') < 0 ? '_full' : '') + '&word=';
+    return { forSearch: forSearch, short: short };
+  }
 
-    // タグ前後のスペースを削除
-    tags[i] = tags[i].replace(/(^ +| +$)/g, '');
+  function generateHTML() {
+    var html = '';
 
-    // 短縮表示
-    var pattern = /(-{2,})+(\d{1,})$/;
-    var name = tags[i];
-    if (name.match(pattern)) {
-      name = RegExp.$2 < (name.length - RegExp.lastMatch.length + 1) ? name.slice(0,   RegExp.$2) + '...' : name.slice(0, - RegExp.lastMatch.length - 1);
+    var tags = GM_config.get('tags');
+    tags = tags.split('\n');
+
+    for (var i = 0; i < tags.length; i++) {
+      if (!tags[i].length) {
+        continue;
+      }
+
+      // スペースがあれば部分一致検索
+      var url = '/search.php?s_mode=s_tag' + (tags[i].indexOf(' ') < 0 ? '_full' : '') + '&word=';
+
+      // タグ前後のスペースを削除
+      tags[i] = tags[i].replace(/(^ +| +$)/g, '');
+
+      // タグを短縮
+      var tag = shortenTag(tags[i]);
+
+      // URLに短縮数字除去+エンコードしたタグを追加
+      url += encodeURI(tag.forSearch.replace(/ /g, '+'));
+
+      html += '<li class="tag"><a class="text" href="' + escapeHTML(url) + '" title="' + escapeHTML(tag.forSearch) + '"><span class="portal">c</span>' + escapeHTML(tag.short) + '</a></li>\n';
     }
 
-    // URLに短縮数字除去+エンコードしたタグを追加
-    url += encodeURI(tags[i].replace(/ /g, '+').replace(pattern, '').replace(/[+-]$/, ''));
-
-    html += '<li class="tag"><a class="text" href="' + url + '" title="' + tags[i] + '"><span class="portal">c</span>' + name + '</a></li>\n';
+    return html;
   }
 
-  return html;
-}
+  function updateHTML() {
+    var parentNode = document.getElementById('wrapper');
 
-function updateHTML() {
-  var parentNode = document.getElementById('wrapper');
+    // 挿入先が見当たらなければ何もしない
+    if (parentNode == null) {
+      return;
+    }
 
-  // 挿入先が見当たらなければ何もしない
-  if(parentNode == null){
-    return;
+    // タグリストが生成済みなら中身だけ書き換え、なければ作成
+    var taglist = document.getElementById('tags');
+    if (taglist != null) {
+      taglist.innerHTML = generateHTML();
+    }
+    else {
+      var parent = document.createElement('div');
+      parent.id = TAGLIST_ID;
+      parent.innerHTML = '<h1 class="unit-title">' + SCRIPT_NAME + '</h1>';
+      var btn1 = document.createElement('button');
+      btn1.id = 'button-settings';
+      btn1.className = '_button';
+      btn1.textContent = '設定';
+      btn1.addEventListener('click', function(){GM_config.open();}, false);
+      parent.firstChild.appendChild(btn1);
+      var btn2 = document.createElement('button');
+      btn2.id = 'button-addtag';
+      btn2.className = '_button';
+      btn2.textContent = '検索条件を追加';
+      btn2.addEventListener('click', function(){addTag();}, false);
+      parent.firstChild.appendChild(btn2);
+      var ul = document.createElement('ul');
+      ul.id = 'tags';
+      ul.className = 'tags';
+      ul.innerHTML = generateHTML();
+      parent.appendChild(ul);
+      parentNode.insertBefore(parent, parentNode.firstChild);
+    }
+
+    // 表示設定を切り替え
+    var taglist_container = document.getElementById(TAGLIST_ID);
+    if (GM_config.get('showAlways')) {
+      taglist_container.className = 'show-always';
+    }
+    else {
+      taglist_container.className = 'show-float';
+    }
   }
 
-  // タグリストが生成済みなら中身だけ書き換え、なければ作成
-  var taglist = document.getElementById('tags');
-  if (taglist != null) {
-    taglist.innerHTML = generateHTML();
-  }
-  else {
-    var parent = document.createElement('div');
-    parent.id = TAGLIST_ID;
-    parent.innerHTML = '<h1 class="unit-title">' + SCRIPT_NAME + '</h1>';
-    var btn1 = document.createElement('button');
-    btn1.id = 'button-settings';
-    btn1.className = '_button';
-    btn1.textContent = '設定';
-    btn1.addEventListener('click', function(){GM_config.open();}, false);
-    parent.firstChild.appendChild(btn1);
-    var btn2 = document.createElement('button');
-    btn2.id = 'button-addtag';
-    btn2.className = '_button';
-    btn2.textContent = '検索条件を追加';
-    btn2.addEventListener('click', function(){addTag();}, false);
-    parent.firstChild.appendChild(btn2);
-    var ul = document.createElement('ul');
-    ul.id = 'tags';
-    ul.className = 'tags';
-    ul.innerHTML = generateHTML();
-    parent.appendChild(ul);
-    parentNode.insertBefore(parent, parentNode.firstChild);
+  function addTag() {
+    var url = location.href;
+    if (!/^http:\/\/www\.pixiv\.net\/(search|tags)\.php\?/.test(url)) {
+      window.alert('検索結果を表示した状態で実行して下さい。');
+      return;
+    }
+
+    var word = url.replace(/^.*[\?&](word|tag)=([^&=\?]+).*$/, '$2');
+    word = decodeURIComponent(word.replace(/\+/g, ' '));
+    var tags = GM_config.get('tags');
+    tags += '\n' + word;
+    GM_config.set('tags', tags);
+    GM_config.write();
+    updateHTML();
+
+    window.alert('「' + word + '」を追加しました。');
   }
 
-  // 表示設定を切り替え
-  var taglist_container = document.getElementById(TAGLIST_ID);
-  if (GM_config.get('showAlways')) {
-    taglist_container.className = 'show-always';
-  }
-  else {
-    taglist_container.className = 'show-float';
-  }
-}
-
-function addTag() {
-  var url = location.href;
-  if (!/^http:\/\/www\.pixiv\.net\/(search|tags)\.php\?/.test(url)) {
-    window.alert('検索結果を表示した状態で実行して下さい。');
-    return;
-  }
-
-  var word = url.replace(/^.*[\?&](word|tag)=([^&=\?]+).*$/, '$2');
-  word = decodeURIComponent(word.replace(/\+/g, ' '));
-  var tags = GM_config.get('tags');
-  tags += '\n' + word;
-  GM_config.set('tags', tags);
-  GM_config.write();
+  GM_config.init(
+    SCRIPT_NAME,
+    {
+      tags :
+      {
+        section : ['タグ(各タグは改行で分ける)'],
+        type : 'textarea',
+        cols : 60,
+        rows : 20,
+        default : 'Greasemonkeyの「ユーザスクリプトコマンド」でタグを設定できます。\nタグは1行に1つ書いて下さい。\n部分一致で検索したい場合は、タグの後ろにスペースを入れて下さい。\nAND/OR検索もできます。\n\n↓例↓\nオリジナル\nなにこれかわいい\n俺の 黒猫\nパチュリー OR パチェ'
+      },showAlways :
+      {
+        label : 'タグリストを常に展開して表示する',
+        type : 'checkbox',
+        default : false
+      }
+    },
+    '#GM_config_field_tags{ width : 100%; }',
+    {
+      save : function() {
+        GM_config.close();
+        optimizeTags();
+        updateHTML();
+      }
+    }
+  );
+  GM_addStyle(CSS)();
   updateHTML();
-
-  window.alert('「' + word + '」を追加しました。');
-}
-
-GM_config.init(
-  SCRIPT_NAME,
-  {
-    tags :
-    {
-      section : ['タグ(各タグは改行で分ける)'],
-      type : 'textarea',
-      cols : 60,
-      rows : 20,
-      default : 'Greasemonkeyの「ユーザスクリプトコマンド」でタグを設定できます。\nタグは1行に1つ書いて下さい。\n部分一致で検索したい場合は、タグの後ろにスペースを入れて下さい。\nAND/OR検索もできます。\n\n↓例↓\nオリジナル\nなにこれかわいい\n俺の 黒猫\nパチュリー OR パチェ'
-    },showAlways :
-    {
-      label : 'タグリストを常に展開して表示する',
-      type : 'checkbox',
-      default : false
-    }
-  },
-  '#GM_config_field_tags{ width : 100%; }',
-  {
-    save : function() {
-      GM_config.close();
-      optimizeTags();
-      updateHTML();
-    }
-  }
-);
-setStyle();
-updateHTML();
-GM_registerMenuCommand(SCRIPT_NAME + ' - 設定', function(){ GM_config.open(); });
-GM_registerMenuCommand(SCRIPT_NAME + ' - 現在表示中のタグを追加', function(){ addTag(); });
+  GM_registerMenuCommand(SCRIPT_NAME + ' - 設定', function(){ GM_config.open(); });
+  GM_registerMenuCommand(SCRIPT_NAME + ' - 現在表示中のタグを追加', function(){ addTag(); });
 
 })();
