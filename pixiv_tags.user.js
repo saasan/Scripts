@@ -42,7 +42,7 @@
     .show-float:hover {
       min-width : 300px;
       height : auto;
-      opacity : 0.9;
+      opacity : 1;
     }
 
     @media screen and (min-width : 1450px) {
