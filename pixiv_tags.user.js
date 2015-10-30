@@ -105,10 +105,18 @@
     }
   `;
 
+  /**
+   * HTMLで使用できない文字を文字実体参照化する
+   * @param s 文字実体参照化したい文字列
+   * @returns {string} 文字実体参照化した文字列
+   */
   function escapeHTML(s) {
     return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
   }
 
+  /**
+   * 設定されたタグリストを最適化
+   */
   function optimizeTags() {
     var tags = GM_config.get('tags');
 
