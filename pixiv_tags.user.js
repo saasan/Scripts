@@ -238,21 +238,21 @@
     }
 
     // タグリストが生成済みなら中身だけ書き換え、なければ作成
-    var taglist = document.getElementById(SCRIPT_ID + 'Tags');
-    if (taglist == null) {
+    var tagsElement = document.getElementById(SCRIPT_ID + 'Tags');
+    if (tagsElement == null) {
       insertAppElement(parentNode);
     }
     else {
-      taglist.innerHTML = generateTagListHTML();
+      tagsElement.innerHTML = generateTagListHTML();
     }
 
     // 表示設定を切り替え
-    var taglist_container = document.getElementById(SCRIPT_ID);
+    var appElement = document.getElementById(SCRIPT_ID);
     if (GM_config.get('showAlways')) {
-      taglist_container.className = 'show-always';
+      appElement.className = 'show-always';
     }
     else {
-      taglist_container.className = 'show-float';
+      appElement.className = 'show-float';
     }
   }
   
