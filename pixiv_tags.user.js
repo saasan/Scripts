@@ -170,7 +170,7 @@
     tags = tags.split('\n');
 
     for (var i = 0; i < tags.length; i++) {
-      if (!tags[i].length) {
+      if (tags[i].length === 0) {
         continue;
       }
 
