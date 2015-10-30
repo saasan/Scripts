@@ -186,7 +186,13 @@
       // URLに短縮数字除去+エンコードしたタグを追加
       url += encodeURI(tag.forSearch.replace(/ /g, '+'));
 
-      html += '<li class="tag"><a class="text" href="' + escapeHTML(url) + '" title="' + escapeHTML(tag.forSearch) + '"><span class="portal">c</span>' + escapeHTML(tag.short) + '</a></li>\n';
+      html += `
+        <li class="tag">
+          <a class="text" href="${ escapeHTML(url) }" title="${ escapeHTML(tag.forSearch) }">
+            <span class="portal">c</span>${ escapeHTML(tag.short) }
+          </a>
+        </li>
+      `;
     }
 
     return html;
@@ -194,6 +200,7 @@
 
   function updateHTML() {
     var parentNode = document.getElementById('wrapper');
+    var tagListHTML = generateTagListHTML();
 
     // 挿入先が見当たらなければ何もしない
     if (parentNode == null) {
@@ -203,30 +210,31 @@
     // タグリストが生成済みなら中身だけ書き換え、なければ作成
     var taglist = document.getElementById('tags');
     if (taglist != null) {
-      taglist.innerHTML = generateTagListHTML();
+      taglist.innerHTML = tagListHTML;
     }
     else {
-      var parent = document.createElement('div');
-      parent.id = TAGLIST_ID;
-      parent.innerHTML = '<h1 class="unit-title">' + SCRIPT_NAME + '</h1>';
-      var btn1 = document.createElement('button');
-      btn1.id = 'button-settings';
-      btn1.className = '_button';
-      btn1.textContent = '設定';
-      btn1.addEventListener('click', function(){GM_config.open();}, false);
-      parent.firstChild.appendChild(btn1);
-      var btn2 = document.createElement('button');
-      btn2.id = 'button-addtag';
-      btn2.className = '_button';
-      btn2.textContent = '検索条件を追加';
-      btn2.addEventListener('click', function(){addTag();}, false);
-      parent.firstChild.appendChild(btn2);
-      var ul = document.createElement('ul');
-      ul.id = 'tags';
-      ul.className = 'tags';
-      ul.innerHTML = generateTagListHTML();
-      parent.appendChild(ul);
-      parentNode.insertBefore(parent, parentNode.firstChild);
+      var fragment = document.createDocumentFragment();
+      
+      fragment.innerHTML = `
+        <div id="${ TAGLIST_ID }">
+          <h1 class="unit-title">
+            ${ SCRIPT_NAME }
+            <button id="${ TAGLIST_ID }AddTag" class="_button">検索条件を追加</button>
+            <button id="${ TAGLIST_ID }OpenSettings" class="_button">設定</button>
+          </h1>
+          <ul id="tags" class="tags">${ tagListHTML }</ul>
+        </div>
+      `;
+      
+      parentNode.insertBefore(fragment, parentNode.firstChild);
+
+      // 「検索条件を追加」ボタンが押されたらaddTag()を呼び出すように設定
+      var buttonAddTag = parentNode.getElementById(TAGLIST_ID + 'AddTag');
+      buttonAddTag.addEventListener('click', function(){ addTag(); }, false);
+      
+      // 「設定」ボタンが押されたら設定画面を開くように設定
+      var buttonSettings = parentNode.getElementById(TAGLIST_ID + 'OpenSettings');
+      buttonSettings.addEventListener('click', function(){ GM_config.open(); }, false);
     }
 
     // 表示設定を切り替え
