@@ -163,8 +163,8 @@
     return { forSearch: forSearch, short: short };
   }
 
-  function generateHTML() {
-    var html = '';
+  function generateTagListHTML() {
+    var html = '', url, tag;
 
     var tags = GM_config.get('tags');
     tags = tags.split('\n');
@@ -175,13 +175,13 @@
       }
 
       // スペースがあれば部分一致検索
-      var url = '/search.php?s_mode=s_tag' + (tags[i].indexOf(' ') < 0 ? '_full' : '') + '&word=';
+      url = '/search.php?s_mode=s_tag' + (tags[i].indexOf(' ') < 0 ? '_full' : '') + '&word=';
 
       // タグ前後のスペースを削除
       tags[i] = tags[i].replace(/(^ +| +$)/g, '');
 
       // タグを短縮
-      var tag = shortenTag(tags[i]);
+      tag = shortenTag(tags[i]);
 
       // URLに短縮数字除去+エンコードしたタグを追加
       url += encodeURI(tag.forSearch.replace(/ /g, '+'));
@@ -203,7 +203,7 @@
     // タグリストが生成済みなら中身だけ書き換え、なければ作成
     var taglist = document.getElementById('tags');
     if (taglist != null) {
-      taglist.innerHTML = generateHTML();
+      taglist.innerHTML = generateTagListHTML();
     }
     else {
       var parent = document.createElement('div');
@@ -224,7 +224,7 @@
       var ul = document.createElement('ul');
       ul.id = 'tags';
       ul.className = 'tags';
-      ul.innerHTML = generateHTML();
+      ul.innerHTML = generateTagListHTML();
       parent.appendChild(ul);
       parentNode.insertBefore(parent, parentNode.firstChild);
     }
