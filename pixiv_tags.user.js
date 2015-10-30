@@ -12,8 +12,6 @@
 // @version     1.05
 // ==/UserScript==
 
-/* jshint multistr: true */
-
 (function() {
   'use strict';
 
