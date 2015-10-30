@@ -29,62 +29,22 @@
     }
 
     /* ページ左側に固定表示するタイプ */
-    .positionFixed {
+    .positionFixed, .positionFixedExpand {
       position : fixed;
       left : 10px;
       top : 10px;
-      width : 8em;
+      z-index : 998;
+    }
+
+    .positionFixed {
       height : 3em;
       opacity : 0.8;
-      z-index : 998;
     }
 
     .positionFixed:hover {
       min-width : 300px;
       height : auto;
       opacity : 1;
-    }
-
-    @media screen and (min-width : 1450px) {
-      .positionFixed, .positionFixed:hover {
-        width : 200px;
-        height : 100%;
-        opacity : 1;
-      }
-
-      .positionFixed li {
-        display : inline-block;
-      }
-    }
-
-    @media screen and (min-width : 1550px) {
-      .positionFixed, .positionFixed:hover {
-        width : 250px;
-      }
-    }
-
-    @media screen and (min-width : 1650px) {
-      .positionFixed, .positionFixed:hover {
-        width : 300px;
-      }
-    }
-
-    @media screen and (min-width : 1750px) {
-      .positionFixed, .positionFixed:hover {
-        width : 350px;
-      }
-    }
-
-    @media screen and (min-width : 1850px) {
-      .positionFixed, .positionFixed:hover {
-        width : 400px;
-      }
-    }
-
-    @media screen and (min-width : 1920px) {
-      .positionFixed, .positionFixed:hover {
-        width : 435px;
-      }
     }
 
     /* ページ上部に表示するタイプ */
@@ -249,14 +209,8 @@
       tagsElement.innerHTML = generateTagListHTML();
     }
 
-    // 固定表示設定を切り替え
-    var appElement = document.getElementById(SCRIPT_ID);
-    if (GM_config.get('positionFixed')) {
-      appElement.className = 'positionFixed';
-    }
-    else {
-      appElement.className = 'positionStatic';
-    }
+    // 要素の幅を設定
+    setWidth();
 
     // 「検索条件を追加」ボタンの有効/無効を切り替え
     var addTagElement = document.getElementById(SCRIPT_ID + 'AddTag');
@@ -292,6 +246,30 @@
     window.alert('「' + word + '」を追加しました。');
   }
 
+  /**
+   * アプリで使用する要素の幅を設定する
+   */
+  function setWidth() {
+    var appElement = document.getElementById(SCRIPT_ID);
+    if (GM_config.get('positionFixed')) {
+      if (document.body.clientWidth >= 1450) {
+        // 新しい幅(clientWidthからpixivの幅970px + margin:10px * 4を引いて2で割る)
+        var newWidth = Math.round((document.body.clientWidth - 970 - (10 * 4)) / 2);
+
+        appElement.style.width = newWidth + 'px';
+        appElement.className = 'positionFixedExpand';
+      }
+      else {
+        appElement.style.width = '8em';
+        appElement.className = 'positionFixed';
+      }
+    }
+    else {
+      appElement.style.width = 'auto';
+      appElement.className = 'positionStatic';
+    }
+  }
+
   GM_config.init(
     SCRIPT_NAME,
     {
@@ -323,5 +301,23 @@
   updateHTML();
   GM_registerMenuCommand(SCRIPT_NAME + ' - 設定', function(){ GM_config.open(); });
   GM_registerMenuCommand(SCRIPT_NAME + ' - 現在表示中のタグを追加', function(){ addTag(); });
+
+  // リサイズ時の処理
+  (function(){
+    var queue = null;
+    var appElement = document.getElementById(SCRIPT_ID);
+
+    window.addEventListener('resize', function() {
+      // 連続して発生するリサイズイベントをキャンセル
+      if (queue != null) {
+        clearTimeout(queue);
+      }
+
+      // 100ミリ秒待ってから要素のサイズを設定
+      queue = setTimeout(function() {
+        setWidth();
+      }, 100);
+    }, false);
+  })();
 
 })();
