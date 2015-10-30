@@ -16,9 +16,9 @@
   'use strict';
 
   var SCRIPT_NAME = 'pixiv Tags';
-  var TAGLIST_ID = SCRIPT_NAME.replace(/ /g, '');
+  var SCRIPT_ID = SCRIPT_NAME.replace(/ /g, '');
   var CSS  = `
-    #${TAGLIST_ID} {
+    #${ SCRIPT_ID } {
       background-color : #FFF;
       border: 1px solid #D6DEE5;
       border-radius: 5px;
@@ -96,11 +96,11 @@
     }
 
     /* ボタンと親要素の調整 */
-    #${TAGLIST_ID} button {
+    #${ SCRIPT_ID } button {
       float : right;
       margin-top : 0.3em;
     }
-    #${TAGLIST_ID} h1 {
+    #${ SCRIPT_ID } h1 {
       line-height: 2.7em;
     }
   `;
@@ -216,11 +216,11 @@
       var fragment = document.createDocumentFragment();
       
       fragment.innerHTML = `
-        <div id="${ TAGLIST_ID }">
+        <div id="${ SCRIPT_ID }">
           <h1 class="unit-title">
             ${ SCRIPT_NAME }
-            <button id="${ TAGLIST_ID }AddTag" class="_button">検索条件を追加</button>
-            <button id="${ TAGLIST_ID }OpenSettings" class="_button">設定</button>
+            <button id="${ SCRIPT_ID }AddTag" class="_button">検索条件を追加</button>
+            <button id="${ SCRIPT_ID }OpenSettings" class="_button">設定</button>
           </h1>
           <ul id="tags" class="tags">${ tagListHTML }</ul>
         </div>
@@ -229,16 +229,16 @@
       parentNode.insertBefore(fragment, parentNode.firstChild);
 
       // 「検索条件を追加」ボタンが押されたらaddTag()を呼び出すように設定
-      var buttonAddTag = parentNode.getElementById(TAGLIST_ID + 'AddTag');
+      var buttonAddTag = parentNode.getElementById(SCRIPT_ID + 'AddTag');
       buttonAddTag.addEventListener('click', function(){ addTag(); }, false);
       
       // 「設定」ボタンが押されたら設定画面を開くように設定
-      var buttonSettings = parentNode.getElementById(TAGLIST_ID + 'OpenSettings');
+      var buttonSettings = parentNode.getElementById(SCRIPT_ID + 'OpenSettings');
       buttonSettings.addEventListener('click', function(){ GM_config.open(); }, false);
     }
 
     // 表示設定を切り替え
-    var taglist_container = document.getElementById(TAGLIST_ID);
+    var taglist_container = document.getElementById(SCRIPT_ID);
     if (GM_config.get('showAlways')) {
       taglist_container.className = 'show-always';
     }
