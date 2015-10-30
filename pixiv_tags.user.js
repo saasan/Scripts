@@ -112,6 +112,10 @@ function setStyle() {
   GM_addStyle(style);
 }
 
+function escapeHTML(s) {
+  return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+}
+
 function optimizeTags() {
   var tags = GM_config.get('tags');
 
@@ -127,6 +131,35 @@ function optimizeTags() {
 
   GM_config.set('tags', tags);
   GM_config.write();
+}
+
+/**
+ * タグを表示用に短縮する
+ * @param tag タグの文字列
+ * @returns {object} forSearch 文字数指定部分を削除した検索用タグ
+ *                   short 表示用に短縮したタグ
+ */
+function shortenTag(tag) {
+  var forSearch, short;
+  var pattern = /\s+--(\d+)\s*$/;
+  var result = pattern.exec(tag);
+
+  if (result == null) {
+    forSearch = short = tag;
+  }
+  else {
+    // 指定された文字数
+    var limit = parseInt(result[1], 10);
+    // 文字数指定部分を削除
+    forSearch = short = tag.replace(pattern, '');
+
+    // 指定文字数を超えていたら短縮
+    if (short.length > limit) {
+      short = short.substr(0, limit) + '...';
+    }
+  }
+  
+  return { forSearch: forSearch, short: short };
 }
 
 function generateHTML() {
@@ -146,17 +179,13 @@ function generateHTML() {
     // タグ前後のスペースを削除
     tags[i] = tags[i].replace(/(^ +| +$)/g, '');
 
-    // 短縮表示
-    var pattern = /(-{2,})+(\d{1,})$/;
-    var name = tags[i];
-    if (name.match(pattern)) {
-      name = RegExp.$2 < (name.length - RegExp.lastMatch.length + 1) ? name.slice(0,   RegExp.$2) + '...' : name.slice(0, - RegExp.lastMatch.length - 1);
-    }
+    // タグを短縮
+    var tag = shortenTag(tags[i]);
 
     // URLに短縮数字除去+エンコードしたタグを追加
-    url += encodeURI(tags[i].replace(/ /g, '+').replace(pattern, '').replace(/[+-]$/, ''));
+    url += encodeURI(tag.forSearch.replace(/ /g, '+'));
 
-    html += '<li class="tag"><a class="text" href="' + url + '" title="' + tags[i] + '"><span class="portal">c</span>' + name + '</a></li>\n';
+    html += '<li class="tag"><a class="text" href="' + escapeHTML(url) + '" title="' + escapeHTML(tag.forSearch) + '"><span class="portal">c</span>' + escapeHTML(tag.short) + '</a></li>\n';
   }
 
   return html;
@@ -166,7 +195,7 @@ function updateHTML() {
   var parentNode = document.getElementById('wrapper');
 
   // 挿入先が見当たらなければ何もしない
-  if(parentNode == null){
+  if (parentNode == null) {
     return;
   }
 
