@@ -163,6 +163,9 @@
     return { forSearch: forSearch, short: short };
   }
 
+  /**
+   * タグリスト部分のHTMLを作成する
+   */
   function generateTagListHTML() {
     var html = '', url, tag;
 
@@ -198,9 +201,36 @@
     return html;
   }
 
+  /**
+   * アプリで使用する要素を挿入する
+   * @param parentNode 挿入する親要素
+   */
+  function insertAppElement(parentNode) {
+    var element = document.createElement('div');
+    element.id = SCRIPT_ID;
+
+    element.innerHTML = `
+      <h1 class="unit-title">
+        ${ SCRIPT_NAME }
+        <button id="${ SCRIPT_ID }AddTag" class="_button">検索条件を追加</button>
+        <button id="${ SCRIPT_ID }OpenSettings" class="_button">設定</button>
+      </h1>
+      <ul id="${ SCRIPT_ID }Tags" class="tags">${ generateTagListHTML() }</ul>
+    `;
+
+    parentNode.insertBefore(element, parentNode.firstChild);
+
+    // 「検索条件を追加」ボタンが押されたらaddTag()を呼び出すように設定
+    var buttonAddTag = document.getElementById(SCRIPT_ID + 'AddTag');
+    buttonAddTag.addEventListener('click', function(){ addTag(); }, false);
+
+    // 「設定」ボタンが押されたら設定画面を開くように設定
+    var buttonSettings = document.getElementById(SCRIPT_ID + 'OpenSettings');
+    buttonSettings.addEventListener('click', function(){ GM_config.open(); }, false);
+  }
+
   function updateHTML() {
     var parentNode = document.getElementById('wrapper');
-    var tagListHTML = generateTagListHTML();
 
     // 挿入先が見当たらなければ何もしない
     if (parentNode == null) {
@@ -209,31 +239,11 @@
 
     // タグリストが生成済みなら中身だけ書き換え、なければ作成
     var taglist = document.getElementById(SCRIPT_ID + 'Tags');
-    if (taglist != null) {
-      taglist.innerHTML = tagListHTML;
+    if (taglist == null) {
+      insertAppElement(parentNode);
     }
     else {
-      var element = document.createElement('div');
-      element.id = SCRIPT_ID;
-      
-      element.innerHTML = `
-        <h1 class="unit-title">
-          ${ SCRIPT_NAME }
-          <button id="${ SCRIPT_ID }AddTag" class="_button">検索条件を追加</button>
-          <button id="${ SCRIPT_ID }OpenSettings" class="_button">設定</button>
-        </h1>
-        <ul id="${ SCRIPT_ID }Tags" class="tags">${ tagListHTML }</ul>
-      `;
-
-      parentNode.insertBefore(element, parentNode.firstChild);
-
-      // 「検索条件を追加」ボタンが押されたらaddTag()を呼び出すように設定
-      var buttonAddTag = document.getElementById(SCRIPT_ID + 'AddTag');
-      buttonAddTag.addEventListener('click', function(){ addTag(); }, false);
-      
-      // 「設定」ボタンが押されたら設定画面を開くように設定
-      var buttonSettings = document.getElementById(SCRIPT_ID + 'OpenSettings');
-      buttonSettings.addEventListener('click', function(){ GM_config.open(); }, false);
+      taglist.innerHTML = generateTagListHTML();
     }
 
     // 表示設定を切り替え
@@ -245,10 +255,18 @@
       taglist_container.className = 'show-float';
     }
   }
+  
+  /**
+   * 検索結果のページか調べる
+   * @returns {boolean} 検索結果のページならtrue、そうでなければfalse
+   */
+  function isSearchResult() {
+    return /^https?:\/\/www\.pixiv\.net\/(search|tags)\.php\?/.test(location.href);
+  }
 
   function addTag() {
     var url = location.href;
-    if (!/^http:\/\/www\.pixiv\.net\/(search|tags)\.php\?/.test(url)) {
+    if (!isSearchResult()) {
       window.alert('検索結果を表示した状態で実行して下さい。');
       return;
     }
