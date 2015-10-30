@@ -212,8 +212,8 @@
     element.innerHTML = `
       <h1 class="unit-title">
         ${ SCRIPT_NAME }
-        <button id="${ SCRIPT_ID }AddTag" class="_button">検索条件を追加</button>
         <button id="${ SCRIPT_ID }OpenSettings" class="_button">設定</button>
+        <button id="${ SCRIPT_ID }AddTag" class="_button">検索条件を追加</button>
       </h1>
       <ul id="${ SCRIPT_ID }Tags" class="tags">${ generateTagListHTML() }</ul>
     `;
