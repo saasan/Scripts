@@ -213,27 +213,26 @@
       taglist.innerHTML = tagListHTML;
     }
     else {
-      var fragment = document.createDocumentFragment();
+      var element = document.createElement('div');
+      element.id = SCRIPT_ID;
       
-      fragment.innerHTML = `
-        <div id="${ SCRIPT_ID }">
-          <h1 class="unit-title">
-            ${ SCRIPT_NAME }
-            <button id="${ SCRIPT_ID }AddTag" class="_button">検索条件を追加</button>
-            <button id="${ SCRIPT_ID }OpenSettings" class="_button">設定</button>
-          </h1>
-          <ul id="${ SCRIPT_ID }Tags" class="tags">${ tagListHTML }</ul>
-        </div>
+      element.innerHTML = `
+        <h1 class="unit-title">
+          ${ SCRIPT_NAME }
+          <button id="${ SCRIPT_ID }AddTag" class="_button">検索条件を追加</button>
+          <button id="${ SCRIPT_ID }OpenSettings" class="_button">設定</button>
+        </h1>
+        <ul id="${ SCRIPT_ID }Tags" class="tags">${ tagListHTML }</ul>
       `;
-      
-      parentNode.insertBefore(fragment, parentNode.firstChild);
+
+      parentNode.insertBefore(element, parentNode.firstChild);
 
       // 「検索条件を追加」ボタンが押されたらaddTag()を呼び出すように設定
-      var buttonAddTag = parentNode.getElementById(SCRIPT_ID + 'AddTag');
+      var buttonAddTag = document.getElementById(SCRIPT_ID + 'AddTag');
       buttonAddTag.addEventListener('click', function(){ addTag(); }, false);
       
       // 「設定」ボタンが押されたら設定画面を開くように設定
-      var buttonSettings = parentNode.getElementById(SCRIPT_ID + 'OpenSettings');
+      var buttonSettings = document.getElementById(SCRIPT_ID + 'OpenSettings');
       buttonSettings.addEventListener('click', function(){ GM_config.open(); }, false);
     }
 
@@ -291,7 +290,7 @@
       }
     }
   );
-  GM_addStyle(CSS)();
+  GM_addStyle(CSS);
   updateHTML();
   GM_registerMenuCommand(SCRIPT_NAME + ' - 設定', function(){ GM_config.open(); });
   GM_registerMenuCommand(SCRIPT_NAME + ' - 現在表示中のタグを追加', function(){ addTag(); });
