@@ -28,6 +28,11 @@
       box-sizing: border-box;
     }
 
+    #${ SCRIPT_ID }Tags {
+      margin: 2px;
+      padding: 5px;
+    }
+
     /* ページ左側に固定表示するタイプ */
     .positionFixed, .positionFixedExpand {
       position : fixed;
