@@ -229,6 +229,9 @@
     settingsElement.addEventListener('click', function(){ GM_config.open(); }, false);
   }
 
+  /**
+   * HTMLを更新する
+   */
   function updateHTML() {
     var parentNode = document.getElementById('wrapper');
 
@@ -268,6 +271,9 @@
     return /^https?:\/\/www\.pixiv\.net\/(search|tags)\.php\?/.test(location.href);
   }
 
+  /**
+   * 表示中の検索結果をタグとして追加する
+   */
   function addTag() {
     var url = location.href;
     if (!isSearchResult()) {
