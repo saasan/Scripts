@@ -28,8 +28,8 @@
       box-sizing: border-box;
     }
 
-    /* マウスオンで表示するタイプ */
-    .show-float {
+    /* ページ左側に固定表示するタイプ */
+    .positionFixed {
       position : fixed;
       left : 10px;
       top : 10px;
@@ -39,57 +39,57 @@
       z-index : 998;
     }
 
-    .show-float:hover {
+    .positionFixed:hover {
       min-width : 300px;
       height : auto;
       opacity : 1;
     }
 
     @media screen and (min-width : 1450px) {
-      .show-float, .show-float:hover {
+      .positionFixed, .positionFixed:hover {
         width : 200px;
         height : 100%;
         opacity : 1;
       }
 
-      .show-float li {
+      .positionFixed li {
         display : inline-block;
       }
     }
 
     @media screen and (min-width : 1550px) {
-      .show-float, .show-float:hover {
+      .positionFixed, .positionFixed:hover {
         width : 250px;
       }
     }
 
     @media screen and (min-width : 1650px) {
-      .show-float, .show-float:hover {
+      .positionFixed, .positionFixed:hover {
         width : 300px;
       }
     }
 
     @media screen and (min-width : 1750px) {
-      .show-float, .show-float:hover {
+      .positionFixed, .positionFixed:hover {
         width : 350px;
       }
     }
 
     @media screen and (min-width : 1850px) {
-      .show-float, .show-float:hover {
+      .positionFixed, .positionFixed:hover {
         width : 400px;
       }
     }
 
     @media screen and (min-width : 1920px) {
-      .show-float, .show-float:hover {
+      .positionFixed, .positionFixed:hover {
         width : 435px;
       }
     }
 
-    /* 常に展開して表示するタイプ */
-    .show-always {
-      position : relative;
+    /* ページ上部に表示するタイプ */
+    .positionStatic {
+      position : static;
       margin-bottom : 5px;
       width : 100%;
       height : auto;
@@ -249,13 +249,13 @@
       tagsElement.innerHTML = generateTagListHTML();
     }
 
-    // 表示設定を切り替え
+    // 固定表示設定を切り替え
     var appElement = document.getElementById(SCRIPT_ID);
-    if (GM_config.get('showAlways')) {
-      appElement.className = 'show-always';
+    if (GM_config.get('positionFixed')) {
+      appElement.className = 'positionFixed';
     }
     else {
-      appElement.className = 'show-float';
+      appElement.className = 'positionStatic';
     }
 
     // 「検索条件を追加」ボタンの有効/無効を切り替え
@@ -302,11 +302,12 @@
         cols : 60,
         rows : 20,
         default : 'Greasemonkeyの「ユーザスクリプトコマンド」でタグを設定できます。\nタグは1行に1つ書いて下さい。\n部分一致で検索したい場合は、タグの後ろにスペースを入れて下さい。\nAND/OR検索もできます。\n\n↓例↓\nオリジナル\nなにこれかわいい\n俺の 黒猫\nパチュリー OR パチェ'
-      },showAlways :
+      },
+      positionFixed :
       {
-        label : 'タグリストを常に展開して表示する',
+        label : 'ページの左側に固定表示する',
         type : 'checkbox',
-        default : false
+        default : true
       }
     },
     '#GM_config_field_tags{ width : 100%; }',
