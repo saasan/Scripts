@@ -254,8 +254,12 @@
     else {
       appElement.className = 'show-float';
     }
+
+    // 「検索条件を追加」ボタンの有効/無効を切り替え
+    var addTagElement = document.getElementById(SCRIPT_ID + 'AddTag');
+    addTagElement.disabled = !isSearchResult();
   }
-  
+
   /**
    * 検索結果のページか調べる
    * @returns {boolean} 検索結果のページならtrue、そうでなければfalse
