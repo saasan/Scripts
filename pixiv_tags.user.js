@@ -310,7 +310,6 @@
   // リサイズ時の処理
   (function(){
     var queue = null;
-    var appElement = document.getElementById(SCRIPT_ID);
 
     window.addEventListener('resize', function() {
       // 連続して発生するリサイズイベントをキャンセル
