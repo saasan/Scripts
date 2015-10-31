@@ -107,7 +107,7 @@
    */
   function shortenTag(tag) {
     var forSearch, short;
-    var pattern = /\s+--(\d+)\s*$/;
+    var pattern = /\s+--(\d+)(,\d+)?\s*$/;
     var result = pattern.exec(tag);
 
     if (result == null) {
@@ -275,33 +275,30 @@
     }
   }
 
-  GM_config.init(
-    SCRIPT_NAME,
-    {
-      tags :
-      {
-        section : ['タグ(各タグは改行で分ける)'],
-        type : 'textarea',
-        cols : 60,
-        rows : 20,
-        default : 'Greasemonkeyの「ユーザスクリプトコマンド」でタグを設定できます。\nタグは1行に1つ書いて下さい。\n部分一致で検索したい場合は、タグの後ろにスペースを入れて下さい。\nAND/OR検索もできます。\n\n↓例↓\nオリジナル\nなにこれかわいい\n俺の 黒猫\nパチュリー OR パチェ'
+  GM_config.init({
+    id: SCRIPT_ID,
+    title: SCRIPT_NAME + 'の設定',
+    fields: {
+      tags: {
+        section: ['タグ(各タグは改行で分ける)'],
+        type: 'textarea',
+        cols: 60,
+        rows: 20,
+        default: 'Greasemonkeyの「ユーザスクリプトコマンド」でタグを設定できます。\nタグは1行に1つ書いて下さい。\n部分一致で検索したい場合は、タグの後ろにスペースを入れて下さい。\nAND/OR検索もできます。\n\n↓例↓\nオリジナル\nなにこれかわいい\n俺の 黒猫\nパチュリー OR パチェ'
       },
-      positionFixed :
-      {
-        label : 'ページの左側に固定表示する',
-        type : 'checkbox',
-        default : true
+      positionFixed: {
+        label: 'ページの左側に固定表示する',
+        type: 'checkbox',
+        default: true
       }
     },
-    '#GM_config_field_tags{ width : 100%; }',
-    {
-      save : function() {
-        GM_config.close();
-        optimizeTags();
-        updateHTML();
-      }
+    css: '#GM_config_field_tags{ width : 100%; }',
+    onSave: function() {
+      GM_config.close();
+      optimizeTags();
+      updateHTML();
     }
-  );
+  });
   GM_addStyle(CSS);
   updateHTML();
   GM_registerMenuCommand(SCRIPT_NAME + ' - 設定', function(){ GM_config.open(); });
