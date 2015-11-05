@@ -313,10 +313,12 @@
       }
     },
     css: '#pixivTagsConfig_field_tags{ width : 100%; }',
-    onSave: function() {
-      GM_config.close();
-      optimizeTags();
-      updateHTML();
+    events: {
+      save: function() {
+        GM_config.close();
+        optimizeTags();
+        updateHTML();
+      }
     }
   });
   GM_addStyle(CSS);
