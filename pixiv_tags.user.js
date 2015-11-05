@@ -107,21 +107,41 @@
    */
   function shortenTag(tag) {
     var forSearch, short;
-    var pattern = /\s+--(\d+)(,\d+)?\s*$/;
+    var pattern = /\s+--((\d+)(,\d+)?)\s*$/;
     var result = pattern.exec(tag);
 
     if (result == null) {
       forSearch = short = tag;
     }
     else {
-      // 指定された文字数
-      var limit = parseInt(result[1], 10);
+      // 文字数指定部分を取り出す
+      var limitString = result[1];
+      // カンマで分割
+      var limit = limitString.split(',');
+      
+      // 数値化
+      limit.forEach(function(element, index, array){
+        array[i] = parseInt(array[i], 10);
+      });
+      
       // 文字数指定部分を削除
       forSearch = short = tag.replace(pattern, '');
 
-      // 指定文字数を超えていたら短縮
-      if (short.length > limit) {
-        short = short.substr(0, limit) + '...';
+      if (limit.length === 1) {
+        // 指定が1つの場合は先頭からの文字数
+
+        // 指定文字数を超えていたら短縮
+        if (short.length > limit[0]) {
+          short = short.substr(0, limit[0]) + '...';
+        }
+      }
+      else {
+        // 指定が2つ以上の場合は[0]の位置から[1]の文字数
+        
+        // 文字列の長さをチェック
+        if (limit[0] > 0 && limit[1] > 0 && (limit[0] + limit[1] - 1) <= short.length) {
+          short = short.substr(limit[0] - 1, limit[1]) + '...';
+        }
       }
     }
 
