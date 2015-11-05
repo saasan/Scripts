@@ -296,7 +296,7 @@
   }
 
   GM_config.init({
-    id: SCRIPT_ID,
+    id: SCRIPT_ID + 'Config',
     title: SCRIPT_NAME + 'の設定',
     fields: {
       tags: {
