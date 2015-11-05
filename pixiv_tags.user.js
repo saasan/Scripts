@@ -121,7 +121,7 @@
       
       // 数値化
       limit.forEach(function(element, index, array){
-        array[i] = parseInt(array[i], 10);
+        array[index] = parseInt(array[index], 10);
       });
       
       // 文字数指定部分を削除
