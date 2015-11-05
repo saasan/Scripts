@@ -312,7 +312,7 @@
         default: true
       }
     },
-    css: '#pixivTagsConfig_field_tags{ width : 100%; }',
+    css: '#' + SCRIPT_ID + 'Config_field_tags{ width : 100%; }',
     events: {
       save: function() {
         GM_config.close();
