@@ -68,6 +68,14 @@
     #${ SCRIPT_ID } h1 {
       line-height: 2.7em;
     }
+
+    /* 設定画面 */
+    #${ SCRIPT_ID }Config_field_tags {
+      width : 100%;
+    }
+    #${ SCRIPT_ID }Config label {
+      font-size : 100%;
+    }
   `;
 
   /**
@@ -300,19 +308,43 @@
     title: SCRIPT_NAME + 'の設定',
     fields: {
       tags: {
-        section: ['タグ(各タグは改行で分ける)'],
+        section: ['タグ'],
+        label:
+`・タグは1行に1つ書いて下さい。<br>
+・部分一致で検索したい場合は、タグの後ろにスペースを入れて下さい。<br>
+・AND/OR検索もできます。<br>
+・タグの後ろに「 --文字数」(スペース、ハイフン2つ、数字)を付けることで、先頭から指定文字数分だけ表示されます。<br>
+・タグの後ろに「 --開始位置,文字数」(スペース、ハイフン2つ、数字、カンマ、数字)を付けることで、開始位置から指定文字数分だけ表示されます。例えば「あいうえお --3,2」で「うえ」が表示されます。`,
         type: 'textarea',
         cols: 60,
         rows: 20,
-        default: 'Greasemonkeyの「ユーザスクリプトコマンド」でタグを設定できます。\nタグは1行に1つ書いて下さい。\n部分一致で検索したい場合は、タグの後ろにスペースを入れて下さい。\nAND/OR検索もできます。\n\n↓例↓\nオリジナル\nなにこれかわいい\n俺の 黒猫\nパチュリー OR パチェ'
+        default:
+`「設定」ボタンかGreasemonkeyの「ユーザスクリプトコマンド」でタグを設定できます。
+タグは1行に1つ書いて下さい。
+部分一致で検索したい場合は、タグの後ろにスペースを入れて下さい。
+AND/OR検索もできます。
+
+↓例↓
+オリジナル
+なにこれかわいい
+俺の 黒猫
+パチュリー OR パチェ`
       },
       positionFixed: {
+        section: ['オプション'],
         label: 'ページの左側に固定表示する',
         type: 'checkbox',
         default: true
       }
     },
-    css: '#' + SCRIPT_ID + 'Config_field_tags{ width : 100%; }',
+    css: `
+      #${ SCRIPT_ID }Config_field_tags {
+        width : 100%;
+      }
+      #${ SCRIPT_ID }Config .field_label {
+        font-size : inherit;
+        font-weight : inherit;
+      }`,
     events: {
       save: function() {
         GM_config.close();
