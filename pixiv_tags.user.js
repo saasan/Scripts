@@ -68,14 +68,6 @@
     #${ SCRIPT_ID } h1 {
       line-height: 2.7em;
     }
-
-    /* 設定画面 */
-    #${ SCRIPT_ID }Config_field_tags {
-      width : 100%;
-    }
-    #${ SCRIPT_ID }Config label {
-      font-size : 100%;
-    }
   `;
 
   /**
