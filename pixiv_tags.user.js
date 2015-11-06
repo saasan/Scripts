@@ -29,31 +29,37 @@
     }
 
     #${ SCRIPT_ID }Tags {
-      margin: 2px;
-      padding: 5px;
+      margin: 10px;
     }
 
     /* ページ左側に固定表示するタイプ */
-    .positionFixed, .positionFixedExpand {
+    #${ SCRIPT_ID }.positionFixed, #${ SCRIPT_ID }.positionFixedExpand {
       position : fixed;
       left : 10px;
       top : 10px;
       z-index : 998;
     }
 
-    .positionFixed {
-      height : 3em;
+    #${ SCRIPT_ID }.positionFixed {
+      height : 3.7em;
       opacity : 0.8;
     }
 
-    .positionFixed:hover {
+    #${ SCRIPT_ID }.positionFixed:hover {
       min-width : 300px;
       height : auto;
       opacity : 1;
     }
 
+  /* 折りたたまれている時は中身を表示しない */
+    #${ SCRIPT_ID }.positionFixed:not(:hover) #${ SCRIPT_ID }AddTag,
+    #${ SCRIPT_ID }.positionFixed:not(:hover) #${ SCRIPT_ID }OpenSettings,
+    #${ SCRIPT_ID }.positionFixed:not(:hover) #${ SCRIPT_ID }Tags {
+      display: none;
+    }
+
     /* ページ上部に表示するタイプ */
-    .positionStatic {
+    #${ SCRIPT_ID }.positionStatic {
       position : static;
       margin-bottom : 5px;
       width : 100%;
