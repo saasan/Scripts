@@ -324,6 +324,12 @@ AND/OR検索もできます。
       // 「検索条件を追加」ボタンの有効/無効を切り替え
       var addTagElement = document.getElementById(this.SCRIPT_ID + 'AddTag');
       addTagElement.disabled = !this.isSearchResult();
+      
+      // 検索結果のページの場合は「検索条件を追加」ボタンの表示を変更
+      var tag = this.getTagFromUrl();
+      if (tag != null) {
+        addTagElement.textContent = '「' + tag + '」を追加する';
+      }
     },
 
     /**
@@ -335,17 +341,39 @@ AND/OR検索もできます。
     },
 
     /**
+     * URLエンコードされたタグをデコードする
+     * @param tag {string} デコードしたいタグ
+     * @return {string} デコードしたタグ
+     */
+    decodeTag: function(tag) {
+      return decodeURIComponent(tag.replace(/\+/g, ' '));
+    },
+    
+    /**
+     * URLからタグを取り出す
+     * @return {string} デコードしたタグ。
+     *                  検索結果のページでなければnullを返す。
+     */
+    getTagFromUrl: function() {
+      if (!this.isSearchResult()) {
+        return null;
+      }
+      
+      var word = location.href.replace(/^.*[\?&](word|tag)=([^&=\?]+).*$/, '$2');
+      return this.decodeTag(word);
+    },
+
+    /**
      * 表示中の検索結果をタグとして追加する
      */
     addTag: function() {
-      var url = location.href;
-      if (!this.isSearchResult()) {
+      var word = this.getTagFromUrl();
+      
+      if (word == null) {
         window.alert('検索結果を表示した状態で実行して下さい。');
         return;
       }
 
-      var word = url.replace(/^.*[\?&](word|tag)=([^&=\?]+).*$/, '$2');
-      word = decodeURIComponent(word.replace(/\+/g, ' '));
       var tags = GM_config.get('tags');
       tags += '\n' + word;
       GM_config.set('tags', tags);
