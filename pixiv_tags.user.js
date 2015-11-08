@@ -76,11 +76,6 @@
       #${ this.SCRIPT_ID } h1 {
         line-height: 2.7em;
       }
-
-      #${ this.SCRIPT_ID }Config {
-        width: 100%;
-        height: 100%;
-      }
     `;
 
     GM_config.init({
