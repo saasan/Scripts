@@ -128,8 +128,8 @@ AND/OR検索もできます。
       events: {
         save: function() {
           GM_config.close();
-          this.optimizeTags();
-          this.updateHTML();
+          self.optimizeTags();
+          self.updateHTML();
         }
       }
     });
