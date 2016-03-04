@@ -9,7 +9,7 @@
 // @grant       GM_registerMenuCommand
 // @grant       GM_getValue
 // @grant       GM_setValue
-// @version     1.05
+// @version     1.06
 // ==/UserScript==
 
 (function() {
@@ -130,7 +130,7 @@ AND/OR検索もできます。
     });
     GM_addStyle(this.CSS);
     this.updateHTML();
-    
+
     GM_registerMenuCommand(this.SCRIPT_NAME + ' - 設定', function(){ GM_config.open(); });
     GM_registerMenuCommand(this.SCRIPT_NAME + ' - 現在表示中のタグを追加', function(){ self.addTag(); });
 
@@ -324,7 +324,7 @@ AND/OR検索もできます。
       // 「検索条件を追加」ボタンの有効/無効を切り替え
       var addTagElement = document.getElementById(this.SCRIPT_ID + 'AddTag');
       addTagElement.disabled = !this.isSearchResult();
-      
+
       // 検索結果のページの場合は「検索条件を追加」ボタンの表示を変更
       var tag = this.getTagFromUrl();
       if (tag != null) {
@@ -348,7 +348,7 @@ AND/OR検索もできます。
     decodeTag: function(tag) {
       return decodeURIComponent(tag.replace(/\+/g, ' '));
     },
-    
+
     /**
      * URLからタグを取り出す
      * @return {string} デコードしたタグ。
@@ -358,7 +358,7 @@ AND/OR検索もできます。
       if (!this.isSearchResult()) {
         return null;
       }
-      
+
       var word = location.href.replace(/^.*[\?&](word|tag)=([^&=\?]+).*$/, '$2');
       return this.decodeTag(word);
     },
@@ -368,7 +368,7 @@ AND/OR検索もできます。
      */
     addTag: function() {
       var word = this.getTagFromUrl();
-      
+
       if (word == null) {
         window.alert('検索結果を表示した状態で実行して下さい。');
         return;
@@ -407,6 +407,6 @@ AND/OR検索もできます。
       }
     }
   };
-  
+
   new Main();
 })();
