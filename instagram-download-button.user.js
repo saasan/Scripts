@@ -1,5 +1,6 @@
 // ==UserScript==
 // @name        Instagram Download Button
+// @description Instagram にダウンロードボタンを追加する
 // @namespace   http://saasan.github.io/
 // @include     https://www.instagram.com/*
 // @version     1.0
