@@ -2,7 +2,7 @@
 // @name        pixiv Tags
 // @description 設定したタグをpixiv内に常時表示する
 // @namespace   http://saasan.github.io/
-// @include     http://www.pixiv.net/*
+// @include     https://www.pixiv.net/*
 // @require     https://raw.githubusercontent.com/sizzlemctwizzle/GM_config/master/gm_config.js
 // @author      saasan, monsier-oui
 // @grant       GM_addStyle
